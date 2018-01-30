@@ -13,9 +13,7 @@ import simobject.SimObjServer;
 import simobject.SimObjStation;
 import simobject.SimObjTask;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Properties;
 
 public class AppSmo {
@@ -23,6 +21,7 @@ public class AppSmo {
     private SimObjServer server;
     private SimObjBus bus;
     private SimGenerator simGenerator = new SimGenerator();
+    PrintWriter pw;
     InputStream input = null;
     private double stationAmount;
     private double expTaskSize, stdDevTaskSize;
@@ -34,9 +33,35 @@ public class AppSmo {
     private int serverInputQueueSize, serverOutputQueueSize;
     private int timeLimit;
 
+
     public AppSmo() {
+        newFile();
+        newReader();
         readValues();
         runSimulation(timeLimit);
+    }
+
+    private void newReader() {
+        pw = null;
+        try {
+            pw = new PrintWriter("src/main/resources/log.txt");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void newFile() {
+        File plik = new File("src/main/resources/log.txt");
+        if (plik.isFile() == true) {
+          //  System.out.println("plik istnieje");
+        } else {
+            try {
+                boolean b = plik.createNewFile();
+            } catch (IOException e) {
+              //  System.out.println("Nie mo?na utworzy? pliku");
+            }
+        }
+
     }
 
     ;
@@ -52,30 +77,42 @@ public class AppSmo {
 
             //Rozmiar zadania parametry losowania
             expTaskSize = Double.parseDouble(properties.getProperty("expTaskSize"));
-            stdDevTaskSize = Double.parseDouble(properties.getProperty("stdDevTaskSize"));;
+            stdDevTaskSize = Double.parseDouble(properties.getProperty("stdDevTaskSize"));
+            ;
 
             //Wyjsciowy rozmiar zadania po obliczeniu
-            expTaskOutputSize = Double.parseDouble(properties.getProperty("expTaskOutputSize"));;
-            stdDevTaskOutputSize = Double.parseDouble(properties.getProperty("stdDevTaskOutputSize"));;
+            expTaskOutputSize = Double.parseDouble(properties.getProperty("expTaskOutputSize"));
+            ;
+            stdDevTaskOutputSize = Double.parseDouble(properties.getProperty("stdDevTaskOutputSize"));
+            ;
 
             //Iloœæ instrukcji zadania
-            expInstructionAmount = Double.parseDouble(properties.getProperty("expInstructionAmount"));;
-            stDevInstructionAmount = Double.parseDouble(properties.getProperty("stDevInstructionAmount"));;
+            expInstructionAmount = Double.parseDouble(properties.getProperty("expInstructionAmount"));
+            ;
+            stDevInstructionAmount = Double.parseDouble(properties.getProperty("stDevInstructionAmount"));
+            ;
 
 
             //Parametry opoznienia generowania zadania
-            expTaskGenerationDelay = Double.parseDouble(properties.getProperty("expTaskGenerationDelay"));;
-            stdDevTaskGenerationDelay = Double.parseDouble(properties.getProperty("stdDevTaskGenerationDelay"));;
+            expTaskGenerationDelay = Double.parseDouble(properties.getProperty("expTaskGenerationDelay"));
+            ;
+            stdDevTaskGenerationDelay = Double.parseDouble(properties.getProperty("stdDevTaskGenerationDelay"));
+            ;
 
             //Przepustowosc magistrali
-            busThroughput = Double.parseDouble(properties.getProperty("busThroughput"));;
+            busThroughput = Double.parseDouble(properties.getProperty("busThroughput"));
+            ;
 
             //Parametry serwera
-            serverComputingPower = Double.parseDouble(properties.getProperty("serverComputingPower"));;
-            serverInputQueueSize = Integer.parseInt(properties.getProperty("serverInputQueueSize"));;
-            serverOutputQueueSize = Integer.parseInt(properties.getProperty("serverOutputQueueSize"));;
+            serverComputingPower = Double.parseDouble(properties.getProperty("serverComputingPower"));
+            ;
+            serverInputQueueSize = Integer.parseInt(properties.getProperty("serverInputQueueSize"));
+            ;
+            serverOutputQueueSize = Integer.parseInt(properties.getProperty("serverOutputQueueSize"));
+            ;
 
-            timeLimit =Integer.parseInt(properties.getProperty("timeLimit"));;
+            timeLimit = Integer.parseInt(properties.getProperty("timeLimit"));
+            ;
 
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -205,7 +242,7 @@ public class AppSmo {
                     (int) accepted + " razy  i odrzucil zadanie " +
                     (int) deniead + " razy");
             writeLog("Prawdopodobienstwo odrzucenia zadania to: " + String.format("%8.2f", (deniead / (deniead + accepted))));
-           // writeLog("*Odrzucone zadanie trafia spowrotem do stacji roboczej i moze zostac wyslane (i odrzucone) ponownie");
+            // writeLog("*Odrzucone zadanie trafia spowrotem do stacji roboczej i moze zostac wyslane (i odrzucone) ponownie");
         }
 
         {//Info o zajêtoœci bufora wejœciowego serwera
@@ -256,6 +293,7 @@ public class AppSmo {
                 writeLog("Do bufora nie dotatlo zadne zadanie");
             }
         }
+        pw.close();
     }
 
 
@@ -265,6 +303,9 @@ public class AppSmo {
 
 
     public void writeLog(String message) {
-        System.out.println(message);
+
+        pw.println(message);
+        //pw.close();
+      //  System.out.println(message);
     }
 }
